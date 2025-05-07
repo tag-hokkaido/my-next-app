@@ -30,6 +30,8 @@ export default function RootLayout({
           <nav className="container mx-auto flex space-x-4">
             <Link href="/" className="hover:underline">Home</Link>
             <Link href="/about" className="hover:underline">About</Link>
+            <Link href="/blog" className="hover:underline">Blog</Link>
+            <Link href="/profile" className="hover:underline">Profile</Link>
           </nav>
         </header>
         <main className={`${geistSans.variable} ${geistMono.variable} antialiased flex-1 container mx-auto p-6`}
