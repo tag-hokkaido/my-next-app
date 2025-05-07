@@ -1,20 +1,33 @@
-import Link from "next/link";
+// app/blog/[slug]/page.tsx
+type Props = {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+};
 
-export default async function BlogPost({
-  params,
-}: {
-  params: { slug: string };
-}) {
+// 動的なパス生成を有効化
+export const dynamic = 'force-dynamic';
+
+async function getPost(slug: string) {
+  const res = await fetch(`http://localhost:3000/api/posts/${slug}`, { cache: 'no-store' });
+  if (!res.ok) throw new Error('Failed to fetch post');
+  return res.json();
+}
+
+export async function generateStaticParams() {
+  const res = await fetch('http://localhost:3000/api/posts', { cache: 'no-store' });
+  if (!res.ok) throw new Error('Failed to fetch posts');
+  const posts = await res.json();
+  return posts.map((p: { slug: string }) => ({ slug: p.slug }));
+}
+
+export default async function PostPage({ params }: Props) {
+  const { slug } = await params;
+  const post = await getPost(slug);
+  if (!post) return <p>記事が見つかりません。</p>;
   return (
-    <main className="p-8">
-      <h1 className="text-2xl font-bold">Blog: {params.slug}</h1>
-      <p className="mt-4">ここにブログ記事「{params.slug}」の内容を表示します。</p>
-      <Link 
-        href="/"
-        className="mt-4 inline-block px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-      >
-        トップへ戻る
-      </Link>
-    </main>
+    <article className="prose mx-auto p-4">
+      <h1>{post.title}</h1>
+      <div dangerouslySetInnerHTML={{ __html: post.content }} />
+    </article>
   );
 }
